@@ -28,4 +28,24 @@ public class HorseController {
         HorseDto createdHorse = horseService.createHorse(horseDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdHorse);
     }
+
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<String> deleteHorse(@PathVariable Integer id) {
+        try {
+            horseService.deleteHorseById(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Pferd mit ID " + id + " wurde gelöscht.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<HorseDto> updateHorse(@PathVariable Integer id, @RequestBody HorseDto horseDto) {
+        try {
+            HorseDto updatedHorse = horseService.updateHorse(id, horseDto);
+            return ResponseEntity.ok(updatedHorse);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 }
