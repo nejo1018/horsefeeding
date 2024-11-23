@@ -10,8 +10,10 @@ import com.accenture.javengers.horsefeeding.horse.HorseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -97,6 +99,48 @@ public class FeedinglogService {
             throw new InvalidFeedingTimeException("Füttern ist nur in den Zeitfenstern 08-11, 13-16 und 20-23 Uhr erlaubt.");
         }
     }
+
+    public List<HorseDto> getEligibleHorses(Optional<LocalTime> requestedTime) {
+        // Verwendet die aktuelle Zeit, wenn keine Zeit angegeben wurde
+        LocalTime timeToCheck = requestedTime.orElse(LocalTime.now());
+
+        // Alle Pferde abrufen
+        List<Horse> allHorses = horseRepository.findAll();
+
+        // Filtern der Pferde, die aktuell gefüttert werden können
+        List<Horse> eligibleHorses = allHorses.stream()
+                .filter(horse -> isTimeValidForFeeding(timeToCheck))
+                .collect(Collectors.toList());
+
+        // Umwandeln in DTOs
+        return eligibleHorses.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    private boolean isTimeValidForFeeding(LocalTime timeToCheck) {
+        // Prüfen, ob die Zeit in einem der gültigen Zeitfenster liegt
+        return (timeToCheck.isAfter(LocalTime.of(8, 0)) && timeToCheck.isBefore(LocalTime.of(11, 0)))
+                || (timeToCheck.isAfter(LocalTime.of(13, 0)) && timeToCheck.isBefore(LocalTime.of(16, 0)))
+                || (timeToCheck.isAfter(LocalTime.of(20, 0)) && timeToCheck.isBefore(LocalTime.of(23, 0)));
+    }
+
+    private HorseDto mapToDto(Horse horse) {
+        HorseDto dto = new HorseDto();
+        dto.setId(horse.getId());
+        dto.setGuid(horse.getGuid());
+        dto.setHorseName(horse.getHorseName());
+        dto.setHorseNickname(horse.getHorseNickname());
+        dto.setBreed(horse.getBreed());
+        dto.setOwner_id(horse.getOwner_id());
+        dto.setStable_id(horse.getStable_id());
+        dto.setMealplan_id(horse.getMealplan_id());
+        return dto;
+    }
+
+
+
+
 
 
 }

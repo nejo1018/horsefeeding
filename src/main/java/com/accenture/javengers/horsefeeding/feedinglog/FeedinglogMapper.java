@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
+/*
 @Mapper(componentModel = "spring")
 public interface FeedinglogMapper {
 
@@ -16,4 +17,12 @@ public interface FeedinglogMapper {
     FeedinglogDto toDto(Feedinglog feedinglog);
 
     List<FeedinglogDto> toDtos(List<Feedinglog> feedinglog);
+}
+*/
+@Mapper(componentModel = "spring")
+public interface FeedinglogMapper {
+
+    FeedinglogDto toDto(Feedinglog feedinglog);
+
+    Feedinglog toEntity(FeedinglogDto feedinglogDto);
 }
