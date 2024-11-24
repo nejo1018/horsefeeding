@@ -30,18 +30,6 @@ public class FeedinglogController {
         return ResponseEntity.ok(unfedHorses);
     }
 
-    /*
-    @PostMapping
-    public ResponseEntity<FeedinglogDto> feedHorse(@RequestBody FeedinglogDto feedinglogDto) {
-        try {
-            FeedinglogDto createdFeedinglog = feedinglogService.feedHorse(feedinglogDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdFeedinglog);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
-     */
-
     @PostMapping
     public ResponseEntity<FeedinglogDto> feedHorse(@RequestBody FeedinglogDto feedinglogDto) {
         try {

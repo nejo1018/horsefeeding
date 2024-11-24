@@ -41,15 +41,15 @@ public class FeedinglogService {
     public List<HorseDto> findUnfedHorsesForToday(){
         List<Integer> fedHorseIds = feedinglogRepository.findFedHorseIdsForToday();
 
-        // Hole alle Pferde aus der Datenbank
+
         List<Horse> allHorses = horseRepository.findAll();
 
-        // Filtere die Pferde, deren IDs NICHT in der Liste der gefütterten IDs sind
+
         List<Horse> unfedHorses = allHorses.stream()
                 .filter(horse -> !fedHorseIds.contains(horse.getId()))
                 .collect(Collectors.toList());
 
-        // Mappe die ungefütterten Pferde auf HorseDto und gib sie zurück
+
         return unfedHorses.stream()
                 .map(horseMapper::toDto)
                 .collect(Collectors.toList());
@@ -57,10 +57,10 @@ public class FeedinglogService {
 
 
     public FeedinglogDto feedHorse(FeedinglogDto feedinglogDto) {
-        // Validierung der Fütterungszeit
+
         validateFeedingTime(feedinglogDto.getFood_time());
 
-        // Mapping von DTO zu Entity
+
         Feedinglog feedinglog = new Feedinglog();
         feedinglog.setHorse_id(feedinglogDto.getHorse_id());
         feedinglog.setFeedingstation_id(feedinglogDto.getFeedingstation_id());
@@ -68,10 +68,10 @@ public class FeedinglogService {
         feedinglog.setFood_time(feedinglogDto.getFood_time());
         feedinglog.setMealplan_id(feedinglogDto.getMealplan_id());
 
-        // Speichere den neuen Fütterungseintrag
+
         Feedinglog savedFeedinglog = feedinglogRepository.save(feedinglog);
 
-        // Mapping von Entity zurück zu DTO
+
         FeedinglogDto savedDto = new FeedinglogDto();
         savedDto.setId(savedFeedinglog.getId());
         savedDto.setHorse_id(savedFeedinglog.getHorse_id());
@@ -86,7 +86,7 @@ public class FeedinglogService {
 
 
     private void validateFeedingTime(String foodTime) {
-        // Erlaube nur Zeitfenster 08-11, 13-16, und 20-23 Uhr
+
         LocalTime feedingTime = LocalTime.parse(foodTime);
 
         boolean isValid = (feedingTime.isAfter(LocalTime.of(7, 59)) && feedingTime.isBefore(LocalTime.of(11, 1))) ||
