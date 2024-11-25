@@ -38,14 +38,12 @@ public class FeedinglogController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<FeedinglogDto> feedHorse(@RequestBody FeedinglogDto feedinglogDto) {
+    @PostMapping("/feed")
+    public ResponseEntity<FeedinglogDto> createFeedinglog(@RequestBody FeedinglogDto feedinglogDto) {
         try {
-            // Service übernimmt die Berechnung der feedingstation_id
-            FeedinglogDto createdFeedinglog = feedinglogService.feedHorse(feedinglogDto);
+            FeedinglogDto createdFeedinglog = feedinglogService.createFeedinglog(feedinglogDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdFeedinglog);
         } catch (IllegalArgumentException e) {
-            // Gibt einen BAD_REQUEST zurück, wenn die Exception geworfen wird
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
@@ -65,7 +63,6 @@ public class FeedinglogController {
     public ResponseEntity<List<HorseDto>> getHorsesNotFedForMoreThanXHours(
             @RequestParam int hours,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime time) {
-        // Wenn keine Zeit angegeben ist, nutze die aktuelle Zeit
         LocalTime currentTime = (time != null) ? time : LocalTime.now();
 
         // Service aufrufen

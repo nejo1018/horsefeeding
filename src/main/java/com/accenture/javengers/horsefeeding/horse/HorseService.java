@@ -25,7 +25,7 @@ public class HorseService {
         // Mapping von DTO zu Entity
         Horse horse = new Horse();
 
-        // GUID wird hier automatisch generiert
+
         horse.setGuid(UUID.randomUUID().toString());
 
         horse.setHorseName(horseDto.getHorseName());
@@ -37,7 +37,7 @@ public class HorseService {
 
         Horse savedHorse = horseRepository.save(horse);
 
-        // Mapping von Entity zu DTO
+
         HorseDto savedHorseDto = new HorseDto();
         savedHorseDto.setId(savedHorse.getId());
         savedHorseDto.setGuid(savedHorse.getGuid());

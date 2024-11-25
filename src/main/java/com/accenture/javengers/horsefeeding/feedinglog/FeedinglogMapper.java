@@ -24,5 +24,7 @@ public interface FeedinglogMapper {
 
     FeedinglogDto toDto(Feedinglog feedinglog);
 
+    List<FeedinglogDto> toDtos(List<Feedinglog> feedinglogs);
+
     Feedinglog toEntity(FeedinglogDto feedinglogDto);
 }

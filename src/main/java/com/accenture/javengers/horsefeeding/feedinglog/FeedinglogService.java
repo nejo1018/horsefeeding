@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class FeedinglogService {
         return feedinglogMapper.toDtos(all);
     }
 
-    public List<HorseDto> findUnfedHorsesForToday(){
+    public List<HorseDto> findUnfedHorsesForToday() {
         List<Integer> fedHorseIds = feedinglogRepository.findFedHorseIdsForToday();
 
         // Hole alle Pferde aus der Datenbank
@@ -58,6 +59,7 @@ public class FeedinglogService {
     }
 
 
+    /*
     public FeedinglogDto feedHorse(FeedinglogDto feedinglogDto) {
         // Validierung der Fütterungszeit
         validateFeedingTime(feedinglogDto.getFood_time());
@@ -85,23 +87,42 @@ public class FeedinglogService {
         return savedDto;
     }
 
+     */
 
+    public FeedinglogDto feedHorse(FeedinglogDto feedinglogDto) {
+        // Validierung der Fütterungszeit
+        validateFeedingTime(feedinglogDto.getFoodDateTime().toLocalTime());
 
-    private void validateFeedingTime(String foodTime) {
-        // Erlaube nur Zeitfenster 08-11, 13-16, und 20-23 Uhr
-        LocalTime feedingTime = LocalTime.parse(foodTime);
+        // Mapping von DTO zu Entity
+        Feedinglog feedinglog = feedinglogMapper.toEntity(feedinglogDto);
 
-        boolean isValid = (feedingTime.isAfter(LocalTime.of(7, 59)) && feedingTime.isBefore(LocalTime.of(11, 1))) ||
-                (feedingTime.isAfter(LocalTime.of(12, 59)) && feedingTime.isBefore(LocalTime.of(16, 1))) ||
-                (feedingTime.isAfter(LocalTime.of(19, 59)) && feedingTime.isBefore(LocalTime.of(23, 1)));
+        // Speichere den neuen Fütterungseintrag
+        Feedinglog savedFeedinglog = feedinglogRepository.save(feedinglog);
+
+        // Mapping von Entity zurück zu DTO
+        return feedinglogMapper.toDto(savedFeedinglog);
+    }
+
+    /**
+     * Validiert, ob die angegebene Fütterungszeit in den erlaubten Zeitfenstern liegt.
+     */
+    private void validateFeedingTime(LocalTime feedingTime) {
+        if (feedingTime == null) {
+            throw new IllegalArgumentException("Feeding time cannot be null");
+        }
+
+        boolean isValid = (feedingTime.isAfter(LocalTime.of(8, 0)) && feedingTime.isBefore(LocalTime.of(11, 0)))
+                || (feedingTime.isAfter(LocalTime.of(13, 0)) && feedingTime.isBefore(LocalTime.of(16, 0)))
+                || (feedingTime.isAfter(LocalTime.of(20, 0)) && feedingTime.isBefore(LocalTime.of(23, 0)));
 
         if (!isValid) {
-            throw new InvalidFeedingTimeException("Füttern ist nur in den Zeitfenstern 08-11, 13-16 und 20-23 Uhr erlaubt.");
+            throw new IllegalArgumentException("Feeding time is outside allowed ranges.");
         }
     }
 
+
+
     public List<HorseDto> getEligibleHorses(Optional<LocalTime> requestedTime) {
-        // Verwendet die aktuelle Zeit, wenn keine Zeit angegeben wurde
         LocalTime timeToCheck = requestedTime.orElse(LocalTime.now());
 
         // Alle Pferde abrufen
@@ -114,12 +135,11 @@ public class FeedinglogService {
 
         // Umwandeln in DTOs
         return eligibleHorses.stream()
-                .map(this::mapToDto)
+                .map(horseMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     private boolean isTimeValidForFeeding(LocalTime timeToCheck) {
-        // Prüfen, ob die Zeit in einem der gültigen Zeitfenster liegt
         return (timeToCheck.isAfter(LocalTime.of(8, 0)) && timeToCheck.isBefore(LocalTime.of(11, 0)))
                 || (timeToCheck.isAfter(LocalTime.of(13, 0)) && timeToCheck.isBefore(LocalTime.of(16, 0)))
                 || (timeToCheck.isAfter(LocalTime.of(20, 0)) && timeToCheck.isBefore(LocalTime.of(23, 0)));
@@ -137,6 +157,27 @@ public class FeedinglogService {
         dto.setMealplan_id(horse.getMealplan_id());
         return dto;
     }
+
+
+    public FeedinglogDto createFeedinglog(FeedinglogDto feedinglogDto) {
+        validateFeedingTime(feedinglogDto.getFoodDateTime().toLocalTime());
+
+
+        if (feedinglogDto.getFeedingStationId() == null) {
+            throw new IllegalArgumentException("FeedingStationId cannot be null.");
+        }
+
+        // Mapping von DTO zu Entity
+        Feedinglog feedinglog = feedinglogMapper.toEntity(feedinglogDto);
+
+        // Speichere den neuen Fütterungseintrag in der Datenbank
+        Feedinglog savedFeedinglog = feedinglogRepository.save(feedinglog);
+
+        // Mapping von Entity zurück zu DTO
+        return feedinglogMapper.toDto(savedFeedinglog);
+    }
+
+
 
 
 

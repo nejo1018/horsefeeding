@@ -41,7 +41,7 @@ public class FeedingMonitoringService {
 
     private boolean isHorseNotFed(Horse horse, LocalDateTime thresholdTime, LocalTime currentTime) {
         // Prüfen, ob das Pferd in den Feedinglogs innerhalb des Zeitfensters erfasst ist
-        boolean wasFed = feedinglogRepository.existsByHorseIdAndFeedingTimeAfter(horse.getId(), thresholdTime);
+        boolean wasFed = feedinglogRepository.existsByHorseIdAndFoodDateAfter(horse.getId(), thresholdTime);
 
         // Prüfen, ob das Pferd berechtigt ist und nicht gefüttert wurde
         return !wasFed && isTimeValidForFeeding(currentTime);
